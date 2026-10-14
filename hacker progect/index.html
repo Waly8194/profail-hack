@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-TERMINAL // OVERRIDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #00ff66;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* المرحلة 1 */
+        #initialScreen {
+            padding: 20px;
+            overflow: hidden;
+            direction: ltr;
+        }
+
+        .code-stream {
+            color: #00ff66;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* المرحلة 2 */
+        #authScreen {
+            justify-content: center;
+            align-items: center;
+            direction: ltr;
+        }
+
+        #matrixBackground, #finalMatrixBg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .auth-box {
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 5, 2, 0.95);
+            border: 2px solid #00ff66;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4);
+            text-align: center;
+            width: 350px;
+        }
+
+        .auth-box h2 { font-size: 18px; color: #00ff66; margin-bottom: 8px; }
+        .auth-box p { font-size: 12px; color: #aaa; margin-bottom: 15px; }
+
+        .auth-box input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .auth-box button {
+            width: 100%;
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .auth-box button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
+
+        .skull-container { margin-top: 15px; }
+        .skull-art {
+            color: #ff0033;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.2;
+            animation: pulseSkull 0.5s infinite alternate;
+            text-shadow: 0 0 10px #ff0033;
+        }
+        .error-txt { display: block; margin-top: 5px; letter-spacing: 2px; }
+
+        @keyframes pulseSkull {
+            0% { opacity: 0.2; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* المرحلة 3 */
+        #waterfallScreen {
+            overflow: hidden;
+            direction: ltr;
+        }
+
+        .scrolling-codes {
+            position: absolute;
+            top: -150%;
+            width: 100%;
+            color: #00ff66;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: slideDownPage 5s linear forwards;
+        }
+
+        @keyframes slideDownPage {
+            0% { top: -150%; }
+            100% { top: 0%; }
+        }
+
+        /* المرحلة 4 */
+        #dashboardScreen {
+            justify-content: center;
+            align-items: center;
+            direction: ltr;
+            padding: 15px;
+            background: #000;
+        }
+
+        #finalMatrixBg {
+            opacity: 0.3;
+        }
+
+        .dashboard-grid {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1.5fr 1fr;
+            gap: 12px;
+        }
+
+        .panel {
+            background: rgba(13, 18, 27, 0.95);
+            border: 1px solid #00ff66;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+        }
+
+        .panel-header {
+            background: rgba(0, 43, 17, 0.95);
+            color: #00ff66;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 1px solid #00ff66;
+            letter-spacing: 1px;
+        }
+
+        .main-terminal-panel {
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
+        }
+
+        .terminal-output {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #00ff66;
+            line-height: 1.4;
+        }
+
+        .terminal-input-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(16, 22, 34, 0.95);
+            border-top: 1px solid #00ff66;
+            gap: 6px;
+        }
+
+        .prompt-symbol { color: #00ccff; font-size: 12px; font-weight: bold; }
+
+        #userCommandInput {
+            background: transparent;
+            border: none;
+            color: #00ff66;
+            font-family: monospace;
+            font-size: 12px;
+            flex: 1;
+            outline: none;
+        }
+
+        .code-stream-panel {
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+        }
+
+        .live-code-box {
+            flex: 1;
+            padding: 10px;
+            font-size: 10px;
+            color: #00ff66;
+            overflow-y: hidden;
+            line-height: 1.3;
+            word-break: break-all;
+        }
+
+        .panel-footer { font-size: 10px; color: #00ff66; padding: 4px 10px; letter-spacing: 1px; border-top: 1px solid #003311; }
+
+        .files-panel {
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+        }
+
+        .folders-grid {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .folder-item {
+            background: rgba(22, 31, 48, 0.8);
+            border: 1px solid #00ff66;
+            padding: 8px;
+            font-size: 11px;
+            color: #00ff66;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .keyboard-panel {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+        }
+
+        .virtual-keyboard {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: rgba(13, 18, 27, 0.9);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .kb-row {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .key {
+            background: rgba(21, 29, 44, 0.9);
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-size: 9px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- المرحلة 1 -->
+    <div class="screen" id="initialScreen">
+        <div class="code-stream" id="initialCodeStream"></div>
+    </div>
+
+    <!-- المرحلة 2 -->
+    <div class="screen hidden" id="authScreen">
+        <canvas id="matrixBackground"></canvas>
+        <div class="auth-box">
+            <h2>ENTER SECURITY PASSCODE</h2>
+            <p>ENGLISH INPUT REQUIRED:</p>
+            <input type="password" id="passInput" placeholder="Passcode..." autocomplete="off">
+            <button id="authBtn">AUTHORIZE</button>
+            
+            <div class="skull-container hidden" id="skullContainer">
+                <div class="skull-art">
+                   .uuuuuu.<br>
+                 .d$$$$$$$$b.<br> d$$$$$$$$$$$$b<br>$$$$$$$$$$$$$$<br> 4$$$$$$$$$$$$P<br>
+                <span class="error-txt">ACCESS DENIED</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المرحلة 3 -->
+    <div class="screen hidden" id="waterfallScreen">
+        <div class="scrolling-codes" id="scrollingCodes"></div>
+    </div>
+
+    <!-- المرحلة 4 -->
+    <div class="screen hidden" id="dashboardScreen">
+        <canvas id="finalMatrixBg"></canvas>
+
+        <div class="dashboard-grid">
+            <div class="panel main-terminal-panel">
+                <div class="panel-header">Windows PowerShell / SECURE TERMINAL</div>
+                <div class="terminal-output" id="terminalOutput">
+                    <div class="line">Windows PowerShell</div>
+                    <div class="line">Copyright (C) Microsoft Corporation. All rights reserved.</div>
+                    <div class="line">&nbsp;</div>
+                </div>
+                <div class="terminal-input-row">
+                    <span class="prompt-symbol">PS C:\Users\Hacker\Documents&gt;</span>
+                    <input type="text" id="userCommandInput" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="panel code-stream-panel">
+                <div class="panel-header">LIVE STREAM DATA</div>
+                <div class="live-code-box" id="liveCodeBox"></div>
+                <div class="panel-footer">STATUS: STREAMING...</div>
+            </div>
+
+            <div class="panel files-panel">
+                <div class="panel-header">SYSTEM DIRECTORIES</div>
+                <div class="folders-grid">
+                    <div class="folder-item">📁 sys_core</div>
+                    <div class="folder-item">📁 backups</div>
+                    <div class="folder-item">📁 exploits</div>
+                    <div class="folder-item">📁 payloads</div>
+                    <div class="folder-item">📁 database</div>
+                    <div class="folder-item">📁 intercept</div>
+                </div>
+            </div>
+
+            <div class="panel keyboard-panel">
+                <div class="panel-header">VIRTUAL KEYBOARD</div>
+                <div class="virtual-keyboard">
+                    <div class="kb-row">
+                        <span class="key">ESC</span><span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key">0</span><span class="key">BKSP</span>
+                    </div>
+                    <div class="kb-row">
+                        <span class="key">TAB</span><span class="key">Q</span><span class="key">W</span><span class="key">E</span><span class="key">R</span><span class="key">T</span><span class="key">Y</span><span class="key">U</span><span class="key">I</span><span class="key">O</span><span class="key">P</span>
+                    </div>
+                    <div class="kb-row">
+                        <span class="key">CAPS</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span class="key">F</span><span class="key">G</span><span class="key">H</span><span class="key">J</span><span class="key">K</span><span class="key">L</span><span class="key">ENTER</span>
+                    </div>
+                    <div class="kb-row">
+                        <span class="key">SHIFT</span><span class="key">Z</span><span class="key">X</span><span class="key">C</span><span class="key">V</span><span class="key">B</span><span class="key">N</span><span class="key">M</span><span class="key">SPACE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const initialCodeStream = document.getElementById('initialCodeStream');
+            const initialScreen = document.getElementById('initialScreen');
+            const authScreen = document.getElementById('authScreen');
+
+            const fullTextToType = `[SYSTEM INITIALIZATION]
+Loading kernel modules... [OK]
+Mounting virtual root file system... [OK]
+Bypassing local security policies... [OK]
+Establishing secure encrypted socket... [CONNECTED]
+Target IP: 192.168.1.104
+Verifying node integrity... 1024MB allocated.
+INITIALIZING SECURE GATEWAY... PLEASE WAIT.
+`;
+
+            let charIndex = 0;
+            function typeText() {
+                if (charIndex < fullTextToType.length) {
+                    initialCodeStream.textContent += fullTextToType.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeText, 15);
+                } else {
+                    setTimeout(() => {
+                        initialScreen.classList.add('hidden');
+                        authScreen.classList.remove('hidden');
+                        runMatrix('matrixBackground');
+                    }, 600);
+                }
+            }
+            setTimeout(typeText, 200);
+
+            function runMatrix(canvasId) {
+                const cvs = document.getElementById(canvasId);
+                if (!cvs) return;
+                const ctx = cvs.getContext('2d');
+                cvs.width = window.innerWidth;
+                cvs.height = window.innerHeight;
+
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%';
+                const fontSize = 14;
+                const cols = Math.floor(cvs.width / fontSize);
+                const drops = Array(cols).fill(1);
+
+                setInterval(() => {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                    ctx.fillRect(0, 0, cvs.width, cvs.height);
+                    ctx.fillStyle = '#00ff66';
+                    ctx.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        if (drops[i] * fontSize > cvs.height && Math.random() > 0.975) drops[i] = 0;
+                        drops[i]++;
+                    }
+                }, 33);
+            }
+
+            const passInput = document.getElementById('passInput');
+            const authBtn = document.getElementById('authBtn');
+            const skullContainer = document.getElementById('skullContainer');
+            const waterfallScreen = document.getElementById('waterfallScreen');
+
+            function checkPassword() {
+                if (passInput.value.trim() === "5558136126") {
+                    authScreen.classList.add('hidden');
+                    startWaterfall();
+                } else {
+                    skullContainer.classList.remove('hidden');
+                    passInput.style.borderColor = "#ff0033";
+                }
+            }
+
+            if (authBtn) authBtn.addEventListener('click', checkPassword);
+            if (passInput) {
+                passInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkPassword();
+                });
+            }
+
+            const dashboardScreen = document.getElementById('dashboardScreen');
+
+            function startWaterfall() {
+                waterfallScreen.classList.remove('hidden');
+                const scrollingCodes = document.getElementById('scrollingCodes');
+                let html = "";
+                for (let i = 0; i < 120; i++) {
+                    html += `01001001 _SYS_OVERRIDE_ROOT_ACCESS_GRANTED_ NODE_${Math.floor(Math.random()*9999)}<br>`;
+                }
+                scrollingCodes.innerHTML = html;
+
+                setTimeout(() => {
+                    waterfallScreen.classList.add('hidden');
+                    dashboardScreen.classList.remove('hidden');
+                    runMatrix('finalMatrixBg');
+                    initTerminal();
+                    startLiveStream();
+                }, 5000);
+            }
+
+            function startLiveStream() {
+                const box = document.getElementById('liveCodeBox');
+                if (!box) return;
+                setInterval(() => {
+                    const hex = Math.random().toString(36).substring(2, 10).toUpperCase();
+                    const div = document.createElement('div');
+                    div.innerText = `[0x${hex}] BUFFER_OVERFLOW... OK`;
+                    box.appendChild(div);
+                    if (box.children.length > 15) box.removeChild(box.firstChild);
+                }, 120);
+            }
+
+            function initTerminal() {
+                const output = document.getElementById('terminalOutput');
+                const input = document.getElementById('userCommandInput');
+
+                const lines = [
+                    "Setting up network environment variables...",
+                    "Connected to remote target node [192.168.1.50]",
+                    "Type your commands below and press Enter:"
+                ];
+
+                let idx = 0;
+                function printLines() {
+                    if (idx < lines.length) {
+                        const d = document.createElement('div');
+                        d.innerText = lines[idx];
+                        output.appendChild(d);
+                        idx++;
+                        setTimeout(printLines, 300);
+                    }
+                }
+                printLines();
+
+                if (input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const val = input.value.trim();
+                            if (val !== "") {
+                                const cmd = document.createElement('div');
+                                cmd.innerHTML = `<span style="color:#00ccff;">PS C:\\Users\\Hacker\\Documents&gt;</span> ${val}`;
+                                output.appendChild(cmd);
+
+                                const res = document.createElement('div');
+                                res.style.color = "#ffbd2e";
+                                res.innerText = `Executing [${val}]... Done.`;
+                                output.appendChild(res);
+
+                                input.value = "";
+                                output.scrollTop = output.scrollHeight;
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
